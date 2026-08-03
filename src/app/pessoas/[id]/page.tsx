@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
+import { QuestionnaireReview } from "@/components/people/QuestionnaireReview";
 import { getPersonById } from "@/services/person.service";
 import { getQuestionnaireByPersonId } from "@/services/questionnaire.service";
 import { RELATION_LABELS } from "@/types";
@@ -85,38 +86,7 @@ export default async function PersonProfilePage({
           <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
             <h2 className="font-medium">Primeiro encontro com a Gwen</h2>
             {questionnaire ? (
-              <div className="mt-4 space-y-4 text-sm">
-                <p className="text-muted">
-                  Respondido em {formatDate(questionnaire.submittedAt)}
-                </p>
-                <div className="space-y-3">
-                  <p>
-                    <span className="text-muted">Prefere ser chamado: </span>
-                    {questionnaire.whoYouAre?.preferredName}
-                  </p>
-                  <p>
-                    <span className="text-muted">Como conheceu o Luan: </span>
-                    {questionnaire.whoYouAre?.howMetLuan}
-                  </p>
-                  <p>
-                    <span className="text-muted">Personalidade: </span>
-                    {(questionnaire.personality?.description || []).join(", ") ||
-                      "—"}
-                  </p>
-                  <p>
-                    <span className="text-muted">Características: </span>
-                    {(questionnaire.personality?.definingTraits || []).join(
-                      ", ",
-                    ) || "—"}
-                  </p>
-                  {questionnaire.forGwen?.neverForget ? (
-                    <p>
-                      <span className="text-muted">Nunca esquecer: </span>
-                      {questionnaire.forGwen.neverForget}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
+              <QuestionnaireReview questionnaire={questionnaire} />
             ) : (
               <p className="mt-2 text-sm text-muted">
                 Ainda aguardando as respostas do formulário.
