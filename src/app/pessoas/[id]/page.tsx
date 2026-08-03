@@ -7,10 +7,15 @@ import { Button } from "@/components/ui/Button";
 import { QuestionnaireReview } from "@/components/people/QuestionnaireReview";
 import { MemoriesSection } from "@/components/people/MemoriesSection";
 import { GenerateSummaryButton } from "@/components/people/GenerateSummaryButton";
+import { PersonReminders } from "@/components/reminders/PersonReminders";
 import { getPersonById } from "@/services/person.service";
 import { getQuestionnaireByPersonId } from "@/services/questionnaire.service";
 import { listMemoriesByPerson } from "@/services/memory.service";
 import { ensurePersonSummary } from "@/services/summary.service";
+import {
+  getRemindersForPerson,
+  syncRemindersForPerson,
+} from "@/services/reminder.service";
 import { RELATION_LABELS } from "@/types";
 import { formatDate, formatRelative } from "@/utils/normalize";
 
@@ -26,9 +31,11 @@ export default async function PersonProfilePage({
   if (!person) notFound();
 
   await ensurePersonSummary(id);
+  await syncRemindersForPerson(id);
   const refreshed = await getPersonById(id);
   const questionnaire = await getQuestionnaireByPersonId(id);
   const memories = await listMemoriesByPerson(id);
+  const reminders = await getRemindersForPerson(id);
 
   return (
     <AppShell title={person.fullName}>
@@ -91,6 +98,8 @@ export default async function PersonProfilePage({
                 "Ainda sem resumo. Com o tempo, a Gwen vai tecer memórias aqui."}
             </p>
           </section>
+
+          <PersonReminders reminders={reminders} />
 
           {person.notes ? (
             <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">

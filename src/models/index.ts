@@ -6,3 +6,5 @@ export { Summary } from "./Summary";
 export { Settings } from "./Settings";
 export { Journal } from "./Journal";
 export { User } from "./User";
+export { MoodEntry } from "./MoodEntry";
+export { Reminder } from "./Reminder";

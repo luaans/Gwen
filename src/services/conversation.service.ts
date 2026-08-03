@@ -298,6 +298,24 @@ export async function sendConversationMessage(
     createdAt: new Date(),
   });
 
+  try {
+    const { detectMoodFromText, createMoodEntry } = await import(
+      "./mood.service"
+    );
+    const detected = detectMoodFromText(content.trim());
+    if (detected) {
+      await createMoodEntry({
+        mood: detected.mood,
+        score: detected.score,
+        personId,
+        source: "conversation",
+        note: `Detectado na conversa: "${content.trim().slice(0, 120)}"`,
+      });
+    }
+  } catch (error) {
+    console.error("[gwen/mood-from-chat]", error);
+  }
+
   await conversation.save();
   return mapConversation(conversation);
 }

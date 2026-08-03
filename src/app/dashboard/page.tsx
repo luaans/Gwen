@@ -9,7 +9,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { getDashboardData } from "@/services/dashboard.service";
+import { getLatestOwnerMood } from "@/services/mood.service";
+import {
+  countOpenReminders,
+  listOpenReminders,
+} from "@/services/reminder.service";
 import { formatRelative } from "@/utils/normalize";
+
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage({
   searchParams,
@@ -17,7 +24,12 @@ export default async function DashboardPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const params = await searchParams;
-  const data = await getDashboardData(params.q);
+  const [data, latestMood, reminders, reminderCount] = await Promise.all([
+    getDashboardData(params.q),
+    getLatestOwnerMood(),
+    listOpenReminders(1),
+    countOpenReminders(),
+  ]);
 
   return (
     <AppShell title="Pessoas importantes">
@@ -46,37 +58,67 @@ export default async function DashboardPage({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-3xl border border-border bg-card p-5">
               <p className="text-sm text-muted">Pessoas</p>
               <p className="mt-2 font-[family-name:var(--font-fraunces)] text-4xl text-accent">
                 {data.peopleCount}
               </p>
             </div>
-            <div className="rounded-3xl border border-border bg-card p-5 sm:col-span-2">
-              <p className="text-sm text-muted">Últimos primeiros encontros</p>
-              <ul className="mt-3 space-y-2">
-                {data.recentQuestionnaires.length === 0 ? (
-                  <li className="text-sm text-muted">
-                    Ainda ninguém respondeu o formulário.
+            <Link
+              href="/humor"
+              className="rounded-3xl border border-border bg-card p-5 transition hover:border-accent/30"
+            >
+              <p className="text-sm text-muted">Seu humor</p>
+              <p className="mt-2 font-[family-name:var(--font-fraunces)] text-2xl capitalize text-accent">
+                {latestMood?.mood || "—"}
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                {latestMood
+                  ? formatRelative(latestMood.createdAt)
+                  : "Registrar check-in"}
+              </p>
+            </Link>
+            <Link
+              href="/lembrancas"
+              className="rounded-3xl border border-border bg-card p-5 transition hover:border-accent/30 sm:col-span-2"
+            >
+              <p className="text-sm text-muted">Lembranças abertas</p>
+              <p className="mt-2 font-[family-name:var(--font-fraunces)] text-4xl text-accent">
+                {reminderCount}
+              </p>
+              <p className="mt-1 truncate text-xs text-muted">
+                {reminders[0]?.title || "Nada pendente agora"}
+              </p>
+            </Link>
+          </div>
+
+          <div className="rounded-3xl border border-border bg-card p-5">
+            <p className="text-sm text-muted">Últimos primeiros encontros</p>
+            <ul className="mt-3 space-y-2">
+              {data.recentQuestionnaires.length === 0 ? (
+                <li className="text-sm text-muted">
+                  Ainda ninguém respondeu o formulário.
+                </li>
+              ) : (
+                data.recentQuestionnaires.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <Link
+                      href={`/pessoas/${item.personId}`}
+                      className="truncate text-foreground hover:text-accent"
+                    >
+                      {item.personName}
+                    </Link>
+                    <span className="shrink-0 text-muted">
+                      {formatRelative(item.submittedAt)}
+                    </span>
                   </li>
-                ) : (
-                  data.recentQuestionnaires.map((item) => (
-                    <li key={item.id} className="flex items-center justify-between gap-3 text-sm">
-                      <Link
-                        href={`/pessoas/${item.personId}`}
-                        className="truncate text-foreground hover:text-accent"
-                      >
-                        {item.personName}
-                      </Link>
-                      <span className="shrink-0 text-muted">
-                        {formatRelative(item.submittedAt)}
-                      </span>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
+                ))
+              )}
+            </ul>
           </div>
 
           <CopyInviteLink token={data.inviteToken} />
