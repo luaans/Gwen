@@ -6,7 +6,7 @@ import { createJournalAction, deleteJournalAction } from "@/actions/journal.acti
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import type { JournalDTO } from "@/services/journal.service";
+import type { JournalDTO } from "@/types/dto";
 import { formatDate } from "@/utils/normalize";
 
 export function JournalClient({ entries }: { entries: JournalDTO[] }) {

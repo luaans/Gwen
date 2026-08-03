@@ -1,17 +1,9 @@
 import { connectDB } from "@/lib/mongodb";
 import { Memory } from "@/models";
 import { Types } from "mongoose";
+import type { MemoryDTO } from "@/types/dto";
 
-export type MemoryDTO = {
-  id: string;
-  personId?: string;
-  title: string;
-  content: string;
-  tags: string[];
-  importance: number;
-  occurredAt?: string;
-  createdAt: string;
-};
+export type { MemoryDTO };
 
 function toDTO(doc: {
   _id: { toString(): string };

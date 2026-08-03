@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { completeReminderAction } from "@/actions/reminder.actions";
 import { Button } from "@/components/ui/Button";
-import type { ReminderDTO } from "@/services/reminder.service";
+import type { ReminderDTO } from "@/types/dto";
 
 export function RemindersList({ reminders }: { reminders: ReminderDTO[] }) {
   const router = useRouter();

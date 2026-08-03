@@ -5,7 +5,7 @@ import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { sendMessageAction } from "@/actions/conversation.actions";
 import { Button } from "@/components/ui/Button";
 import { useVoice } from "@/hooks/useVoice";
-import type { ChatMessageDTO } from "@/services/conversation.service";
+import type { ChatMessageDTO } from "@/types/dto";
 import { cn } from "@/utils/cn";
 
 export function ChatClient({

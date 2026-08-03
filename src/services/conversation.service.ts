@@ -1,23 +1,11 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import { Conversation, Memory, Person } from "@/models";
+import type { ChatMessageDTO, ConversationDTO } from "@/types/dto";
 import { getQuestionnaireByPersonId } from "./questionnaire.service";
 import { ensurePersonSummary } from "./summary.service";
 
-export type ChatMessageDTO = {
-  role: "owner" | "gwen" | "system";
-  content: string;
-  createdAt: string;
-};
-
-export type ConversationDTO = {
-  id: string;
-  personId?: string;
-  title?: string;
-  messages: ChatMessageDTO[];
-  startedAt: string;
-  updatedAt: string;
-};
+export type { ChatMessageDTO, ConversationDTO };
 
 function mapConversation(doc: {
   _id: { toString(): string };

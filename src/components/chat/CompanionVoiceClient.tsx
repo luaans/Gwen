@@ -11,7 +11,7 @@ import {
 import { Mic, MicOff } from "lucide-react";
 import { sendCompanionMessageAction } from "@/actions/conversation.actions";
 import { useVoice } from "@/hooks/useVoice";
-import type { ChatMessageDTO } from "@/services/conversation.service";
+import type { ChatMessageDTO } from "@/types/dto";
 import { cn } from "@/utils/cn";
 
 export function CompanionVoiceClient({

@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import type { MemoryDTO } from "@/services/memory.service";
+import type { MemoryDTO } from "@/types/dto";
 import { formatDate } from "@/utils/normalize";
 
 export function MemoriesSection({

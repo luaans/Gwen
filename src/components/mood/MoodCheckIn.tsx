@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createMoodAction } from "@/actions/mood.actions";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
-import { MOOD_OPTIONS, type MoodDTO } from "@/services/mood.service";
+import { MOOD_OPTIONS, type MoodDTO } from "@/types/mood";
 import { cn } from "@/utils/cn";
 import { formatRelative } from "@/utils/normalize";
 

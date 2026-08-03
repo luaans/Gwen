@@ -1,20 +1,11 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import { Person, Reminder } from "@/models";
+import type { ReminderDTO } from "@/types/dto";
 import { getQuestionnaireByPersonId } from "./questionnaire.service";
 import { listMemoriesByPerson } from "./memory.service";
 
-export type ReminderDTO = {
-  id: string;
-  personId?: string;
-  personName?: string;
-  title: string;
-  reason?: string;
-  status: "open" | "done" | "snoozed";
-  priority: number;
-  dueAt?: string;
-  createdAt: string;
-};
+export type { ReminderDTO };
 
 function toDTO(
   doc: {

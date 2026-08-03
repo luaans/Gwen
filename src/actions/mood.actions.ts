@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireOwnerSession } from "@/lib/session";
 import { createMoodEntry } from "@/services/mood.service";
-import type { MoodLabel } from "@/models/MoodEntry";
+import type { MoodLabel } from "@/types/mood";
 import type { ActionResult } from "@/types";
 
 export async function createMoodAction(

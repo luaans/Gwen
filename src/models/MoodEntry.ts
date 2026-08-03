@@ -1,13 +1,7 @@
 import { Schema, model, models, type Model, type Types } from "mongoose";
+import type { MoodLabel } from "@/types/mood";
 
-export type MoodLabel =
-  | "radiante"
-  | "bem"
-  | "neutro"
-  | "cansado"
-  | "triste"
-  | "ansioso"
-  | "irritado";
+export type { MoodLabel };
 
 export interface IMoodEntry {
   _id: Types.ObjectId;

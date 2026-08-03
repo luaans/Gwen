@@ -1,15 +1,9 @@
 import { connectDB } from "@/lib/mongodb";
 import { ensureSeed } from "@/lib/seed";
 import { Journal } from "@/models";
+import type { JournalDTO } from "@/types/dto";
 
-export type JournalDTO = {
-  id: string;
-  title: string;
-  body?: string;
-  occurredAt: string;
-  tags: string[];
-  createdAt: string;
-};
+export type { JournalDTO };
 
 function toDTO(doc: {
   _id: { toString(): string };

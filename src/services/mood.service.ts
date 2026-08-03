@@ -1,30 +1,14 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/mongodb";
-import { MoodEntry, type MoodLabel } from "@/models/MoodEntry";
+import { MoodEntry } from "@/models/MoodEntry";
+import {
+  MOOD_OPTIONS,
+  type MoodDTO,
+  type MoodLabel,
+} from "@/types/mood";
 
-export type MoodDTO = {
-  id: string;
-  personId?: string;
-  source: string;
-  mood: MoodLabel;
-  note?: string;
-  score: number;
-  createdAt: string;
-};
-
-export const MOOD_OPTIONS: Array<{
-  value: MoodLabel;
-  label: string;
-  score: number;
-}> = [
-  { value: "radiante", label: "Radiante", score: 10 },
-  { value: "bem", label: "Bem", score: 8 },
-  { value: "neutro", label: "Neutro", score: 5 },
-  { value: "cansado", label: "Cansado", score: 4 },
-  { value: "ansioso", label: "Ansioso", score: 3 },
-  { value: "triste", label: "Triste", score: 2 },
-  { value: "irritado", label: "Irritado", score: 2 },
-];
+export type { MoodDTO, MoodLabel };
+export { MOOD_OPTIONS };
 
 function toDTO(doc: {
   _id: { toString(): string };
