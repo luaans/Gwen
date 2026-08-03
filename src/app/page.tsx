@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
 import { Heart, Headphones, Sparkles, Users } from "lucide-react";
-import { authOptions } from "@/lib/auth";
+import { getOptionalSession } from "@/lib/session-safe";
 import { Button } from "@/components/ui/Button";
 
 const pillars = [
@@ -26,7 +25,7 @@ const pillars = [
 ];
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getOptionalSession();
 
   return (
     <div className="relative min-h-dvh overflow-hidden gwen-noise">

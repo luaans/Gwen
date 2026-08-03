@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getOptionalSession } from "@/lib/session-safe";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { PageTransition } from "@/components/layout/PageTransition";
 
 export default async function LoginPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getOptionalSession();
   if (session) {
     redirect("/dashboard");
   }
