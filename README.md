@@ -48,7 +48,8 @@ npm run dev
 | `/` | Landing |
 | `/entrar` | Login do Luan |
 | `/dashboard` | Pessoas importantes |
-| `/conversas` | Conversas recentes |
+| `/conversar` | Falar com a Gwen (voz) |
+| `/conversas` | Conversas sobre pessoas |
 | `/diario` | Journal |
 | `/configuracoes` | Ajustes |
 | `/pessoas/nova` | Apresentar alguém |

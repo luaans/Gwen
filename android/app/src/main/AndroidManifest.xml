@@ -20,7 +20,7 @@
 
             <meta-data
                 android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="https://gwen-plum.vercel.app/dashboard" />
+                android:value="https://gwen-plum.vercel.app/conversar" />
 
             <meta-data
                 android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"

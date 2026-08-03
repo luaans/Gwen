@@ -2,7 +2,7 @@
   "name": "Gwen",
   "short_name": "Gwen",
   "description": "Companion digital pessoal",
-  "start_url": "/dashboard",
+    "start_url": "/conversar",
   "display": "standalone",
   "background_color": "#0B0B0F",
   "theme_color": "#0B0B0F",

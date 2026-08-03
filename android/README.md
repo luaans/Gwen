@@ -6,6 +6,9 @@ app Android instalável de verdade, usando **Trusted Web Activity** (TWA) via
 rodando dentro de uma "moldura" Android, em tela cheia, com ícone e splash
 próprios.
 
+Ao abrir o app, a Gwen já entra em `/conversar` — conversa direta em modo voz
+(ela escuta e responde falando), no estilo ChatGPT/Gemini.
+
 ## Por que TWA e não um app nativo do zero?
 
 - Reaproveita 100% do código já feito (Next.js), sem duplicar telas.

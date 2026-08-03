@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 
 const links = [
+  { href: "/conversar", label: "Gwen", icon: Heart },
   { href: "/dashboard", label: "Início", icon: Home },
-  { href: "/conversas", label: "Conversas", icon: MessageCircle },
+  { href: "/conversas", label: "Sobre", icon: MessageCircle },
   { href: "/humor", label: "Humor", icon: Smile },
   { href: "/lembrancas", label: "Lembranças", icon: Bell },
   { href: "/diario", label: "Diário", icon: BookHeart },
@@ -106,11 +107,11 @@ export function AppShell({
           {links
             .filter((link) =>
               [
+                "/conversar",
                 "/dashboard",
                 "/conversas",
                 "/humor",
                 "/lembrancas",
-                "/diario",
               ].includes(link.href),
             )
             .map((link) => {

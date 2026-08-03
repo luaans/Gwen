@@ -56,7 +56,7 @@ public class GwenWidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager manager, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_gwen);
 
-        Intent openIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(WidgetPrefs.getBaseUrl(context) + "/dashboard"));
+        Intent openIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(WidgetPrefs.getBaseUrl(context) + "/conversar"));
         PendingIntent openPending = PendingIntent.getActivity(
                 context,
                 appWidgetId,
@@ -111,7 +111,7 @@ public class GwenWidgetProvider extends AppWidgetProvider {
     ) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_gwen);
 
-        Intent openIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(WidgetPrefs.getBaseUrl(context) + "/dashboard"));
+        Intent openIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(WidgetPrefs.getBaseUrl(context) + "/conversar"));
         PendingIntent openPending = PendingIntent.getActivity(
                 context,
                 appWidgetId,

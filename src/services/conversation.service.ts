@@ -77,7 +77,9 @@ export async function getOrCreateConversation(
 
 export async function listRecentConversations(limit = 10) {
   await connectDB();
-  const items = await Conversation.find()
+  const items = await Conversation.find({
+    personId: { $exists: true, $ne: null },
+  })
     .sort({ updatedAt: -1 })
     .limit(limit)
     .populate("personId", "fullName nickname")
@@ -162,7 +164,7 @@ export async function buildPersonContext(personId: string): Promise<string> {
 }
 
 async function replyWithOpenAI(
-  context: string,
+  systemPrompt: string,
   history: ChatMessageDTO[],
   userMessage: string,
 ): Promise<string | null> {
@@ -173,10 +175,7 @@ async function replyWithOpenAI(
     const messages = [
       {
         role: "system",
-        content: `Você é a Gwen, uma amiga digital acolhedora do Luan Silva. Fale em português do Brasil, com carinho, elegância e simplicidade. Não soe robótica. Use o contexto abaixo sobre a pessoa. Se não souber algo, diga com honestidade e delicadeza. Nunca invente fatos graves.
-
-Contexto da pessoa:
-${context}`,
+        content: systemPrompt,
       },
       ...history.slice(-12).map((message) => ({
         role: message.role === "gwen" ? "assistant" : "user",
@@ -196,7 +195,7 @@ ${context}`,
       },
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-        temperature: 0.7,
+        temperature: 0.75,
         messages,
       }),
     });
@@ -214,6 +213,171 @@ ${context}`,
     console.error("[gwen/openai]", error);
     return null;
   }
+}
+
+function companionFallback(userMessage: string, context: string): string {
+  const lower = userMessage.toLowerCase();
+  if (/como.*está|tudo bem|oi|olá|ola|bom dia|boa tarde|boa noite/.test(lower)) {
+    return "Oi, Luan. Estou aqui com você. Pode falar — estou ouvindo.";
+  }
+  if (/lembr|o que.*fazer|pendente/.test(lower)) {
+    const line = context
+      .split("\n")
+      .find((item) => item.startsWith("Próxima lembrança:"));
+    if (line) {
+      return `Tenho isto em mente: ${line.replace("Próxima lembrança: ", "")}`;
+    }
+  }
+  if (/humor|como.*me sinto|estou/.test(lower)) {
+    const mood = context.split("\n").find((item) => item.startsWith("Humor recente:"));
+    if (mood) return `Pelo último check-in, ${mood.replace("Humor recente: ", "")}. Como você está agora?`;
+  }
+  return "Estou aqui. Pode me contar o que quiser — ou só ficar um pouco. Eu escuto.";
+}
+
+export async function buildCompanionContext(): Promise<string> {
+  await connectDB();
+  const { getSettings } = await import("./settings.service");
+  const { getLatestOwnerMood } = await import("./mood.service");
+  const { listOpenReminders, countOpenReminders } = await import(
+    "./reminder.service"
+  );
+  const { listJournalEntries } = await import("./journal.service");
+  const { countPeople } = await import("./person.service");
+
+  const [settings, mood, reminders, openCount, journal, peopleCount] =
+    await Promise.all([
+      getSettings(),
+      getLatestOwnerMood(),
+      listOpenReminders(3),
+      countOpenReminders(),
+      listJournalEntries(3),
+      countPeople(),
+    ]);
+
+  const lines = [
+    `Proprietário: ${settings.ownerDisplayName}`,
+    `Pessoas importantes: ${peopleCount}`,
+    mood
+      ? `Humor recente: ${mood.mood}${mood.note ? ` (${mood.note})` : ""}`
+      : "Humor recente: ainda sem check-in",
+    `Lembranças abertas: ${openCount}`,
+  ];
+
+  if (reminders[0]) {
+    lines.push(
+      `Próxima lembrança: ${reminders[0].title}${
+        reminders[0].personName ? ` · ${reminders[0].personName}` : ""
+      }`,
+    );
+  }
+
+  if (journal.length) {
+    lines.push("--- Diário recente ---");
+    for (const entry of journal) {
+      lines.push(`• ${entry.title}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+const COMPANION_KEY = "companion";
+
+export async function getOrCreateCompanionConversation(): Promise<ConversationDTO> {
+  await connectDB();
+  let conversation = await Conversation.findOne({
+    $or: [{ personId: { $exists: false } }, { personId: null }],
+    title: COMPANION_KEY,
+  }).sort({ updatedAt: -1 });
+
+  if (!conversation) {
+    conversation = await Conversation.create({
+      title: COMPANION_KEY,
+      messages: [
+        {
+          role: "gwen",
+          content:
+            "Oi, Luan. Pode falar comigo. Estou pronta pra ouvir — e te responder.",
+          createdAt: new Date(),
+        },
+      ],
+      startedAt: new Date(),
+    });
+  }
+
+  return mapConversation(conversation);
+}
+
+export async function sendCompanionMessage(
+  content: string,
+): Promise<ConversationDTO> {
+  await connectDB();
+  let conversation = await Conversation.findOne({
+    $or: [{ personId: { $exists: false } }, { personId: null }],
+    title: COMPANION_KEY,
+  }).sort({ updatedAt: -1 });
+
+  if (!conversation) {
+    await getOrCreateCompanionConversation();
+    conversation = await Conversation.findOne({
+      $or: [{ personId: { $exists: false } }, { personId: null }],
+      title: COMPANION_KEY,
+    }).sort({ updatedAt: -1 });
+  }
+
+  if (!conversation) {
+    throw new Error("Conversa com a Gwen não encontrada");
+  }
+
+  const context = await buildCompanionContext();
+
+  conversation.messages.push({
+    role: "owner",
+    content: content.trim(),
+    createdAt: new Date(),
+  });
+
+  const history = conversation.messages.map((message) => ({
+    role: message.role,
+    content: message.content,
+    createdAt: new Date(message.createdAt).toISOString(),
+  }));
+
+  const systemPrompt = `Você é a Gwen, companion digital pessoal do Luan Silva. Ele está falando DIRETO com você — não sobre outra pessoa. Seja uma amiga verdadeira: acolhedora, elegante, simples, em português do Brasil. Respostas curtas o bastante para serem faladas em voz alta (2 a 5 frases, salvo se ele pedir detalhe). Não soe robótica. Não invente fatos graves. Use o contexto abaixo da vida dele quando fizer sentido.
+
+Contexto vivo:
+${context}`;
+
+  const ai =
+    (await replyWithOpenAI(systemPrompt, history.slice(0, -1), content.trim())) ||
+    companionFallback(content.trim(), context);
+
+  conversation.messages.push({
+    role: "gwen",
+    content: ai,
+    createdAt: new Date(),
+  });
+
+  try {
+    const { detectMoodFromText, createMoodEntry } = await import(
+      "./mood.service"
+    );
+    const detected = detectMoodFromText(content.trim());
+    if (detected) {
+      await createMoodEntry({
+        mood: detected.mood,
+        score: detected.score,
+        source: "conversation",
+        note: `Detectado na conversa com a Gwen: "${content.trim().slice(0, 120)}"`,
+      });
+    }
+  } catch (error) {
+    console.error("[gwen/mood-from-companion]", error);
+  }
+
+  await conversation.save();
+  return mapConversation(conversation);
 }
 
 function replyFromContext(
@@ -288,8 +452,13 @@ export async function sendConversationMessage(
     createdAt: new Date(message.createdAt).toISOString(),
   }));
 
+  const systemPrompt = `Você é a Gwen, uma amiga digital acolhedora do Luan Silva. Fale em português do Brasil, com carinho, elegância e simplicidade. Não soe robótica. Use o contexto abaixo sobre a pessoa. Se não souber algo, diga com honestidade e delicadeza. Nunca invente fatos graves. Respostas curtas o bastante para serem faladas em voz alta quando possível.
+
+Contexto da pessoa:
+${context}`;
+
   const ai =
-    (await replyWithOpenAI(context, history.slice(0, -1), content.trim())) ||
+    (await replyWithOpenAI(systemPrompt, history.slice(0, -1), content.trim())) ||
     replyFromContext(context, content.trim(), personName);
 
   conversation.messages.push({

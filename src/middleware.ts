@@ -12,6 +12,7 @@ export const config = {
     "/pessoas/:path*",
     "/diario/:path*",
     "/conversas/:path*",
+    "/conversar/:path*",
     "/configuracoes/:path*",
     "/humor/:path*",
     "/lembrancas/:path*",
