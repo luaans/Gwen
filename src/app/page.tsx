@@ -3,6 +3,8 @@ import { Heart, Headphones, Sparkles, Users } from "lucide-react";
 import { getOptionalSession } from "@/lib/session-safe";
 import { Button } from "@/components/ui/Button";
 
+export const dynamic = "force-dynamic";
+
 const pillars = [
   {
     icon: Users,

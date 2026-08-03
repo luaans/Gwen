@@ -4,6 +4,8 @@ import { getOptionalSession } from "@/lib/session-safe";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { PageTransition } from "@/components/layout/PageTransition";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage() {
   const session = await getOptionalSession();
   if (session) {
