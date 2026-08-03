@@ -47,19 +47,19 @@ export interface QuestionnaireSections {
     howMetLuan: string;
   };
   personality: {
-    description: string;
-    definingTraits: string;
-    whatMakesHappy: string;
-    whatIrritates: string;
+    description: string[];
+    definingTraits: string[];
+    whatMakesHappy?: string[];
+    whatIrritates?: string[];
   };
   tastes: {
-    favoriteGames?: string;
-    favoriteMovies?: string;
-    favoriteSeries?: string;
-    favoriteBooks?: string;
-    favoriteArtists?: string;
-    favoriteFood?: string;
-    hobbies?: string;
+    favoriteGames?: string[];
+    favoriteMovies?: string[];
+    favoriteSeries?: string[];
+    favoriteBooks?: string[];
+    favoriteArtists?: string[];
+    favoriteFood?: string[];
+    hobbies?: string[];
   };
   communication: {
     conversationLength: ConversationPreference;
@@ -69,6 +69,9 @@ export interface QuestionnaireSections {
   };
   gwenStyle: {
     tones: GwenTone[];
+    howSheIs?: string[];
+    howSheWorks?: string[];
+    whenPresent?: string[];
     neverDo?: string;
   };
   goals: {

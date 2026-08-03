@@ -15,19 +15,19 @@ export interface IQuestionnaire {
     howMetLuan: string;
   };
   personality: {
-    description: string;
-    definingTraits: string;
-    whatMakesHappy: string;
-    whatIrritates: string;
+    description: string[];
+    definingTraits: string[];
+    whatMakesHappy?: string[];
+    whatIrritates?: string[];
   };
   tastes: {
-    favoriteGames?: string;
-    favoriteMovies?: string;
-    favoriteSeries?: string;
-    favoriteBooks?: string;
-    favoriteArtists?: string;
-    favoriteFood?: string;
-    hobbies?: string;
+    favoriteGames?: string[];
+    favoriteMovies?: string[];
+    favoriteSeries?: string[];
+    favoriteBooks?: string[];
+    favoriteArtists?: string[];
+    favoriteFood?: string[];
+    hobbies?: string[];
   };
   communication: {
     conversationLength: ConversationPreference;
@@ -37,6 +37,9 @@ export interface IQuestionnaire {
   };
   gwenStyle: {
     tones: GwenTone[];
+    howSheIs?: string[];
+    howSheWorks?: string[];
+    whenPresent?: string[];
     neverDo?: string;
   };
   goals: {
@@ -81,19 +84,19 @@ const questionnaireSchema = new Schema<IQuestionnaire>(
       howMetLuan: { type: String, required: true },
     },
     personality: {
-      description: { type: String, required: true },
-      definingTraits: { type: String, required: true },
-      whatMakesHappy: { type: String, required: true },
-      whatIrritates: { type: String, required: true },
+      description: { type: [String], required: true },
+      definingTraits: { type: [String], required: true },
+      whatMakesHappy: { type: [String], default: [] },
+      whatIrritates: { type: [String], default: [] },
     },
     tastes: {
-      favoriteGames: String,
-      favoriteMovies: String,
-      favoriteSeries: String,
-      favoriteBooks: String,
-      favoriteArtists: String,
-      favoriteFood: String,
-      hobbies: String,
+      favoriteGames: { type: [String], default: [] },
+      favoriteMovies: { type: [String], default: [] },
+      favoriteSeries: { type: [String], default: [] },
+      favoriteBooks: { type: [String], default: [] },
+      favoriteArtists: { type: [String], default: [] },
+      favoriteFood: { type: [String], default: [] },
+      hobbies: { type: [String], default: [] },
     },
     communication: {
       conversationLength: {
@@ -122,6 +125,9 @@ const questionnaireSchema = new Schema<IQuestionnaire>(
         ],
         required: true,
       },
+      howSheIs: { type: [String], default: [] },
+      howSheWorks: { type: [String], default: [] },
+      whenPresent: { type: [String], default: [] },
       neverDo: String,
     },
     goals: {

@@ -13,7 +13,24 @@ import { submitQuestionnaireAction } from "@/actions/questionnaire.actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { cn } from "@/utils/cn";
+import {
+  BOOK_GENRES,
+  DEFINING_TRAITS,
+  FOOD_STYLES,
+  GAME_GENRES,
+  GWEN_HOW_SHE_IS,
+  GWEN_HOW_SHE_WORKS,
+  GWEN_WHEN_PRESENT,
+  HAPPY_MOMENTS,
+  HOBBY_OPTIONS,
+  IRRITATIONS,
+  MOVIE_GENRES,
+  MUSIC_GENRES,
+  PERSONALITY_TRAITS,
+  SERIES_GENRES,
+} from "@/lib/form-options";
 
 const STEPS = [
   { id: 0, title: "Quem é você", description: "O começo de tudo" },
@@ -45,19 +62,19 @@ const defaultValues: QuestionnaireInput = {
     howMetLuan: "",
   },
   personality: {
-    description: "",
-    definingTraits: "",
-    whatMakesHappy: "",
-    whatIrritates: "",
+    description: [],
+    definingTraits: [],
+    whatMakesHappy: [],
+    whatIrritates: [],
   },
   tastes: {
-    favoriteGames: "",
-    favoriteMovies: "",
-    favoriteSeries: "",
-    favoriteBooks: "",
-    favoriteArtists: "",
-    favoriteFood: "",
-    hobbies: "",
+    favoriteGames: [],
+    favoriteMovies: [],
+    favoriteSeries: [],
+    favoriteBooks: [],
+    favoriteArtists: [],
+    favoriteFood: [],
+    hobbies: [],
   },
   communication: {
     conversationLength: "longas",
@@ -67,6 +84,9 @@ const defaultValues: QuestionnaireInput = {
   },
   gwenStyle: {
     tones: ["carinhosa"],
+    howSheIs: [],
+    howSheWorks: [],
+    whenPresent: [],
     neverDo: "",
   },
   goals: {
@@ -109,14 +129,27 @@ function ChoiceCard({
       className={cn(
         "rounded-2xl border px-4 py-3 text-left text-sm transition",
         selected
-          ? "border-accent bg-accent-soft text-accent"
-          : "border-border bg-card text-muted hover:border-accent/40 hover:text-foreground",
+          ? "border-accent/40 bg-accent-soft text-accent"
+          : "border-white/[0.06] bg-card/60 text-muted hover:border-accent/25 hover:text-foreground",
       )}
     >
       {children}
     </button>
   );
 }
+
+const FIELDS_BY_STEP: Array<keyof QuestionnaireInput> = [
+  "whoYouAre",
+  "personality",
+  "tastes",
+  "communication",
+  "gwenStyle",
+  "goals",
+  "friendship",
+  "aboutYou",
+  "forGwen",
+  "consent",
+];
 
 export function QuestionnaireForm({ token }: { token: string }) {
   const router = useRouter();
@@ -127,32 +160,40 @@ export function QuestionnaireForm({ token }: { token: string }) {
   const form = useForm<QuestionnaireInput>({
     resolver: zodResolver(questionnaireSchema),
     defaultValues,
-    mode: "onTouched",
+    mode: "onSubmit",
   });
 
   const {
     register,
     control,
-    trigger,
     handleSubmit,
     formState: { errors },
   } = form;
 
-  async function next() {
-    const fieldsByStep: Array<(keyof QuestionnaireInput)[]> = [
-      ["whoYouAre"],
-      ["personality"],
-      ["tastes"],
-      ["communication"],
-      ["gwenStyle"],
-      ["goals"],
-      ["friendship"],
-      ["aboutYou"],
-      ["forGwen"],
-      ["consent"],
-    ];
-    const valid = await trigger(fieldsByStep[step]);
-    if (valid) setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  function goNext() {
+    setError(null);
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  }
+
+  function goBack() {
+    setError(null);
+    setStep((s) => Math.max(s - 1, 0));
+  }
+
+  function findFirstIncompleteStep(formErrors: typeof errors): number {
+    return FIELDS_BY_STEP.findIndex((field) => Boolean(formErrors[field]));
+  }
+
+  function onInvalid(formErrors: typeof errors) {
+    const firstIncomplete = findFirstIncompleteStep(formErrors);
+    if (firstIncomplete >= 0) {
+      setStep(firstIncomplete);
+      setError(
+        `Ainda faltam algumas respostas em “${STEPS[firstIncomplete].title}”. Você pode navegar livremente, mas para enviar é preciso completar o que for obrigatório.`,
+      );
+      return;
+    }
+    setError("Revise as respostas antes de enviar.");
   }
 
   function onSubmit(data: QuestionnaireInput) {
@@ -172,7 +213,10 @@ export function QuestionnaireForm({ token }: { token: string }) {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      onSubmit={handleSubmit(onSubmit, onInvalid)}
+      className="space-y-6"
+    >
       <div>
         <div className="mb-2 flex items-center justify-between text-xs text-muted">
           <span>
@@ -232,41 +276,168 @@ export function QuestionnaireForm({ token }: { token: string }) {
 
           {step === 1 && (
             <>
-              <Textarea
-                label="Como você descreveria sua personalidade?"
-                {...register("personality.description")}
-                error={errors.personality?.description?.message}
+              <Controller
+                control={control}
+                name="personality.description"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Como você descreveria sua personalidade?"
+                    options={PERSONALITY_TRAITS}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Escolha uma ou mais…"
+                    error={errors.personality?.description?.message}
+                  />
+                )}
               />
-              <Textarea
-                label="Quais características mais te definem?"
-                {...register("personality.definingTraits")}
-                error={errors.personality?.definingTraits?.message}
+              <Controller
+                control={control}
+                name="personality.definingTraits"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Quais características mais te definem?"
+                    options={DEFINING_TRAITS}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Escolha uma ou mais…"
+                    error={errors.personality?.definingTraits?.message}
+                  />
+                )}
               />
-              <Textarea
-                label="O que costuma te deixar feliz?"
-                {...register("personality.whatMakesHappy")}
-                error={errors.personality?.whatMakesHappy?.message}
+              <Controller
+                control={control}
+                name="personality.whatMakesHappy"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="O que costuma te deixar feliz?"
+                    options={HAPPY_MOMENTS}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    hint="Pode deixar em branco se preferir."
+                    placeholder="Selecionar (opcional)…"
+                  />
+                )}
               />
-              <Textarea
-                label="O que costuma te irritar?"
-                {...register("personality.whatIrritates")}
-                error={errors.personality?.whatIrritates?.message}
+              <Controller
+                control={control}
+                name="personality.whatIrritates"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="O que costuma te irritar?"
+                    options={IRRITATIONS}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    hint="Em branco também diz algo — a Gwen pode perguntar depois."
+                    placeholder="Selecionar (opcional)…"
+                  />
+                )}
               />
             </>
           )}
 
           {step === 2 && (
             <>
-              <Input label="Jogos favoritos" {...register("tastes.favoriteGames")} />
-              <Input label="Filmes favoritos" {...register("tastes.favoriteMovies")} />
-              <Input label="Séries favoritas" {...register("tastes.favoriteSeries")} />
-              <Input label="Livros favoritos" {...register("tastes.favoriteBooks")} />
-              <Input
-                label="Artistas ou bandas favoritas"
-                {...register("tastes.favoriteArtists")}
+              <Controller
+                control={control}
+                name="tastes.favoriteGames"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Gêneros de jogos que mais gosta"
+                    options={GAME_GENRES}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    hint="Pode deixar em branco."
+                    placeholder="Selecionar gêneros…"
+                  />
+                )}
               />
-              <Input label="Comida favorita" {...register("tastes.favoriteFood")} />
-              <Textarea label="Hobbies" {...register("tastes.hobbies")} />
+              <Controller
+                control={control}
+                name="tastes.favoriteMovies"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Gêneros de filmes favoritos"
+                    options={MOVIE_GENRES}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    placeholder="Selecionar gêneros…"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="tastes.favoriteSeries"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Gêneros de séries favoritas"
+                    options={SERIES_GENRES}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    placeholder="Selecionar gêneros…"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="tastes.favoriteBooks"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Gêneros de livros favoritos"
+                    options={BOOK_GENRES}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    placeholder="Selecionar gêneros…"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="tastes.favoriteArtists"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Estilos musicais favoritos"
+                    options={MUSIC_GENRES}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    placeholder="Selecionar estilos…"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="tastes.favoriteFood"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Estilos de comida favoritos"
+                    options={FOOD_STYLES}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    placeholder="Selecionar…"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="tastes.hobbies"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Hobbies"
+                    options={HOBBY_OPTIONS}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    placeholder="Selecionar…"
+                  />
+                )}
+              />
             </>
           )}
 
@@ -355,7 +526,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
             <>
               <div className="space-y-2">
                 <p className="text-sm text-muted">
-                  Você gostaria que a Gwen fosse:
+                  No tom, você gostaria que a Gwen fosse:
                 </p>
                 <Controller
                   control={control}
@@ -391,6 +562,53 @@ export function QuestionnaireForm({ token }: { token: string }) {
                   </p>
                 ) : null}
               </div>
+
+              <Controller
+                control={control}
+                name="gwenStyle.howSheIs"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Como gostaria que a Gwen fosse com você?"
+                    options={GWEN_HOW_SHE_IS}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    placeholder="Selecionar…"
+                    error={errors.gwenStyle?.howSheIs?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="gwenStyle.howSheWorks"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Como ela deveria funcionar no dia a dia?"
+                    options={GWEN_HOW_SHE_WORKS}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    placeholder="Selecionar…"
+                    error={errors.gwenStyle?.howSheWorks?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="gwenStyle.whenPresent"
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Em quais momentos ela deveria estar presente?"
+                    options={GWEN_WHEN_PRESENT}
+                    value={field.value || []}
+                    onChange={field.onChange}
+                    optional
+                    hint="Pode deixar em branco."
+                    placeholder="Selecionar (opcional)…"
+                  />
+                )}
+              />
+
               <Textarea
                 label="Existe alguma coisa que ela nunca deveria fazer durante uma conversa?"
                 {...register("gwenStyle.neverDo")}
@@ -513,7 +731,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => setStep((s) => s - 1)}
+            onClick={goBack}
             className="flex-1 sm:flex-none"
           >
             Voltar
@@ -522,7 +740,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
         {step < STEPS.length - 1 ? (
           <Button
             type="button"
-            onClick={next}
+            onClick={goNext}
             className="flex-1 sm:flex-none sm:ml-auto"
           >
             Continuar

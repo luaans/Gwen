@@ -24,31 +24,36 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        await connectDB();
-        await ensureSeed();
+        try {
+          await connectDB();
+          await ensureSeed();
 
-        const user = await User.findOne({
-          email: credentials.email.toLowerCase().trim(),
-        });
+          const user = await User.findOne({
+            email: credentials.email.toLowerCase().trim(),
+          });
 
-        if (!user) {
-          return null;
+          if (!user) {
+            return null;
+          }
+
+          const valid = await bcrypt.compare(
+            credentials.password,
+            user.passwordHash,
+          );
+
+          if (!valid) {
+            return null;
+          }
+
+          return {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+          };
+        } catch (error) {
+          console.error("[gwen/auth]", error);
+          throw new Error("DB_UNAVAILABLE");
         }
-
-        const valid = await bcrypt.compare(
-          credentials.password,
-          user.passwordHash,
-        );
-
-        if (!valid) {
-          return null;
-        }
-
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-        };
       },
     }),
   ],

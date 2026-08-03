@@ -19,6 +19,8 @@ export const updatePersonSchema = createPersonSchema.partial().extend({
   id: z.string().min(1),
 });
 
+const stringList = z.array(z.string());
+
 export const questionnaireSchema = z.object({
   whoYouAre: z.object({
     fullName: z.string().min(2, "Informe seu nome completo"),
@@ -29,19 +31,25 @@ export const questionnaireSchema = z.object({
     howMetLuan: z.string().min(2, "Conte como conheceu o Luan"),
   }),
   personality: z.object({
-    description: z.string().min(2),
-    definingTraits: z.string().min(2),
-    whatMakesHappy: z.string().min(2),
-    whatIrritates: z.string().min(2),
+    description: stringList.min(
+      1,
+      "Escolha ao menos uma forma de se descrever",
+    ),
+    definingTraits: stringList.min(
+      1,
+      "Escolha ao menos uma característica",
+    ),
+    whatMakesHappy: stringList,
+    whatIrritates: stringList,
   }),
   tastes: z.object({
-    favoriteGames: z.string().optional(),
-    favoriteMovies: z.string().optional(),
-    favoriteSeries: z.string().optional(),
-    favoriteBooks: z.string().optional(),
-    favoriteArtists: z.string().optional(),
-    favoriteFood: z.string().optional(),
-    hobbies: z.string().optional(),
+    favoriteGames: stringList,
+    favoriteMovies: stringList,
+    favoriteSeries: stringList,
+    favoriteBooks: stringList,
+    favoriteArtists: stringList,
+    favoriteFood: stringList,
+    hobbies: stringList,
   }),
   communication: z.object({
     conversationLength: z.enum(["curtas", "longas"]),
@@ -62,6 +70,15 @@ export const questionnaireSchema = z.object({
         ]),
       )
       .min(1, "Escolha pelo menos uma opção"),
+    howSheIs: stringList.min(
+      1,
+      "Escolha como gostaria que a Gwen fosse",
+    ),
+    howSheWorks: stringList.min(
+      1,
+      "Escolha como a Gwen deveria funcionar",
+    ),
+    whenPresent: stringList,
     neverDo: z.string().optional(),
   }),
   goals: z.object({

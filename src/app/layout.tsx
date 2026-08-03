@@ -16,7 +16,14 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: "Gwen",
   description:
-    "Uma companion digital aprendendo, uma pessoa de cada vez.",
+    "Uma amiga digital aprendendo, uma pessoa de cada vez.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({

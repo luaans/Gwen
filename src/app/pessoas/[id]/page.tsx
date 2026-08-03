@@ -100,7 +100,14 @@ export default async function PersonProfilePage({
                   </p>
                   <p>
                     <span className="text-muted">Personalidade: </span>
-                    {questionnaire.personality?.description}
+                    {(questionnaire.personality?.description || []).join(", ") ||
+                      "—"}
+                  </p>
+                  <p>
+                    <span className="text-muted">Características: </span>
+                    {(questionnaire.personality?.definingTraits || []).join(
+                      ", ",
+                    ) || "—"}
                   </p>
                   {questionnaire.forGwen?.neverForget ? (
                     <p>

@@ -19,6 +19,17 @@ export function LoginForm() {
     const password = String(formData.get("password") || "");
 
     startTransition(async () => {
+      const health = await fetch("/api/health/db", { cache: "no-store" })
+        .then((res) => res.json())
+        .catch(() => ({ ok: false }));
+
+      if (!health.ok) {
+        setError(
+          "Não consegui conectar ao espaço da Gwen. A conexão com o MongoDB Atlas precisa ser revisada.",
+        );
+        return;
+      }
+
       const result = await signIn("credentials", {
         email,
         password,

@@ -64,6 +64,14 @@ button {
   font: inherit;
 }
 
+a,
+button,
+[role="button"],
+label[for],
+summary {
+  cursor: pointer;
+}
+
 .gwen-noise {
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 163, 199, 0.12), transparent),
