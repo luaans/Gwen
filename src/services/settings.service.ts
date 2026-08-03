@@ -37,10 +37,24 @@ export async function updateOwnerDisplayName(name: string) {
   return settings.ownerDisplayName;
 }
 
+export async function rotateWidgetToken(): Promise<string> {
+  const settings = await getSettings();
+  settings.widgetToken = randomUUID();
+  await settings.save();
+  return settings.widgetToken;
+}
+
+export async function validateWidgetToken(token: string): Promise<boolean> {
+  if (!token) return false;
+  const settings = await getSettings();
+  return Boolean(settings.widgetToken && settings.widgetToken === token);
+}
+
 export async function getSettingsDTO() {
   const settings = await getSettings();
   return {
     formInviteToken: settings.formInviteToken,
+    widgetToken: settings.widgetToken || null,
     ownerDisplayName: settings.ownerDisplayName,
     updatedAt: settings.updatedAt.toISOString(),
   };

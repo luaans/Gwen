@@ -4,6 +4,7 @@ export interface ISettings {
   _id: Types.ObjectId;
   key: string;
   formInviteToken: string;
+  widgetToken?: string;
   ownerDisplayName: string;
   createdAt: Date;
   updatedAt: Date;
@@ -13,6 +14,7 @@ const settingsSchema = new Schema<ISettings>(
   {
     key: { type: String, required: true, unique: true, default: "global" },
     formInviteToken: { type: String, required: true, unique: true },
+    widgetToken: { type: String, sparse: true, unique: true },
     ownerDisplayName: { type: String, required: true, default: "Luan Silva" },
   },
   {

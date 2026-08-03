@@ -39,6 +39,7 @@ npm run dev
 - Configurações (link de convite, nome)
 - PWA instalável (manifest + service worker)
 - App Android via TWA (ver `android/README.md`)
+- Widget de tela inicial (humor + próxima lembrança)
 
 ## Rotas
 

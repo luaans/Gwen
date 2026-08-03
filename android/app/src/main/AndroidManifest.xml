@@ -9,7 +9,8 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Gwen">
+        android:theme="@style/Theme.Gwen"
+        android:usesCleartextTraffic="false">
 
         <activity
             android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
@@ -59,6 +60,29 @@
                     android:host="gwen-plum.vercel.app" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".WidgetConfigActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Gwen"
+            android:label="@string/widget_config_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".GwenWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.luan.gwen.WIDGET_REFRESH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_gwen_info" />
+        </receiver>
 
         <meta-data
             android:name="asset_statements"

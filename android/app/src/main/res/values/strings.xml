@@ -10,4 +10,14 @@
         }
         }]
     </string>
+    <string name="widget_description">Humor e próxima lembrança da Gwen</string>
+    <string name="widget_loading">Atualizando…</string>
+    <string name="widget_refresh">Atualizar</string>
+    <string name="widget_settings">Configurar</string>
+    <string name="widget_config_title">Conectar widget</string>
+    <string name="widget_config_help">No site da Gwen, abra Configurações → Widget Android, gere o token e cole aqui.</string>
+    <string name="widget_base_url_label">URL da Gwen</string>
+    <string name="widget_token_label">Token do widget</string>
+    <string name="widget_token_hint">Cole o token aqui</string>
+    <string name="widget_save">Salvar e conectar</string>
 </resources>

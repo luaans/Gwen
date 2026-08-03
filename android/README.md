@@ -58,10 +58,31 @@ mesma coisa", via **Digital Asset Links**. Passos:
    usado para abrir o arquivo.
 4. Toque no `.apk` para instalar.
 
+## Widget de tela inicial
+
+A Fase 5 adiciona um widget nativo que mostra:
+
+- seu humor mais recente
+- a próxima lembrança aberta
+- quantas lembranças ainda estão abertas
+
+### Como conectar
+
+1. No site (`/configuracoes`), gere o **token do widget**.
+2. Build/instale o APK (ver acima).
+3. Na tela inicial do Android: **Widgets → Gwen**.
+4. Na tela de configuração, cole a URL (`https://gwen-plum.vercel.app`)
+   e o token.
+5. Toque em **Salvar e conectar**.
+
+O widget atualiza sozinho a cada ~30 minutos, ou na hora se você tocar no
+ícone de atualizar.
+
+API usada: `GET /api/widget` com `Authorization: Bearer <token>`.
+
 ## Próximos passos (fora deste projeto por enquanto)
 
-- **Widget de tela inicial**: mostrar a próxima lembrança/humor direto na
-  home screen. Isso exige código Kotlin nativo (`AppWidgetProvider`), fora do
-  escopo de um TWA puro — pode ser a próxima fase.
 - **Publicar na Play Store**: precisa de conta de desenvolvedor Google
   (taxa única) e passar pela revisão deles.
+- Acompanhar o polimento da Companion completa no próprio PWA (insights,
+  midia, etc.).

@@ -23,6 +23,7 @@ export default async function ConfiguracoesPage() {
           <SettingsClient
             ownerDisplayName={settings.ownerDisplayName}
             inviteToken={settings.formInviteToken}
+            widgetToken={settings.widgetToken}
           />
         </div>
       </PageTransition>

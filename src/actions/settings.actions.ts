@@ -5,6 +5,7 @@ import { requireOwnerSession } from "@/lib/session";
 import {
   getSettingsDTO,
   rotateInviteToken,
+  rotateWidgetToken,
   updateOwnerDisplayName,
 } from "@/services/settings.service";
 import type { ActionResult } from "@/types";
@@ -47,6 +48,22 @@ export async function updateOwnerNameAction(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Falha ao salvar",
+    };
+  }
+}
+
+export async function rotateWidgetTokenAction(): Promise<
+  ActionResult<{ token: string }>
+> {
+  try {
+    await requireOwnerSession();
+    const token = await rotateWidgetToken();
+    revalidatePath("/configuracoes");
+    return { success: true, data: { token } };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Falha ao gerar token",
     };
   }
 }
