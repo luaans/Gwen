@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import { ensureSeed } from "@/lib/seed";
 import { Person, Questionnaire } from "@/models";
 import type { QuestionnaireInput } from "@/lib/validations";
+import { normalizeName } from "@/utils/normalize";
 import { findOrCreatePersonByName } from "./person.service";
 import { validateInviteToken } from "./settings.service";
 
@@ -119,6 +120,44 @@ export async function submitQuestionnaire(
 export async function getQuestionnaireByPersonId(personId: string) {
   await connectDB();
   return Questionnaire.findOne({ personId }).sort({ submittedAt: -1 }).lean();
+}
+
+export async function findExistingKnowing(
+  fullName: string,
+): Promise<{ personId: string; personName: string } | null> {
+  await connectDB();
+  await ensureSeed();
+
+  const person = await Person.findOne({
+    normalizedName: normalizeName(fullName),
+  });
+  if (!person) return null;
+
+  const questionnaire = await Questionnaire.exists({ personId: person._id });
+  if (!questionnaire) return null;
+
+  return {
+    personId: person._id.toString(),
+    personName: person.nickname || person.fullName,
+  };
+}
+
+export async function findExistingKnowingByPersonId(
+  personId: string,
+): Promise<{ personId: string; personName: string } | null> {
+  await connectDB();
+  if (!Types.ObjectId.isValid(personId)) return null;
+
+  const person = await Person.findById(personId);
+  if (!person) return null;
+
+  const questionnaire = await Questionnaire.exists({ personId: person._id });
+  if (!questionnaire) return null;
+
+  return {
+    personId: person._id.toString(),
+    personName: person.nickname || person.fullName,
+  };
 }
 
 export async function getRecentQuestionnaires(limit = 5) {

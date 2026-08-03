@@ -4,10 +4,13 @@ import { KnowingExperience } from "@/components/form/KnowingExperience";
 
 export default async function PublicFormPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>;
+  searchParams: Promise<{ feito?: string }>;
 }) {
   const { token } = await params;
+  const query = await searchParams;
   const valid = await validateInviteToken(token);
 
   if (!valid) {
@@ -16,7 +19,7 @@ export default async function PublicFormPage({
 
   return (
     <div className="min-h-dvh gwen-noise">
-      <KnowingExperience token={token} />
+      <KnowingExperience token={token} initialFeito={query.feito} />
     </div>
   );
 }

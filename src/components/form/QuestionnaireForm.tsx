@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { MultiSelect } from "@/components/ui/MultiSelect";
+import { FormThanksCard } from "@/components/form/FormThanksCard";
 import { cn } from "@/utils/cn";
 import {
   BOOK_GENRES,
@@ -151,15 +151,29 @@ const FIELDS_BY_STEP: Array<keyof QuestionnaireInput> = [
   "consent",
 ];
 
-export function QuestionnaireForm({ token }: { token: string }) {
-  const router = useRouter();
+export function QuestionnaireForm({
+  token,
+  prefillFullName = "",
+  onCompleted,
+}: {
+  token: string;
+  prefillFullName?: string;
+  onCompleted: (personId: string, personName: string) => void;
+}) {
   const [step, setStep] = useState(0);
+  const [consentAnswered, setConsentAnswered] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const form = useForm<QuestionnaireInput>({
     resolver: zodResolver(questionnaireSchema),
-    defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      whoYouAre: {
+        ...defaultValues.whoYouAre,
+        fullName: prefillFullName,
+      },
+    },
     mode: "onSubmit",
   });
 
@@ -167,8 +181,11 @@ export function QuestionnaireForm({ token }: { token: string }) {
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = form;
+
+  const consentValue = watch("consent");
 
   function goNext() {
     setError(null);
@@ -177,6 +194,10 @@ export function QuestionnaireForm({ token }: { token: string }) {
 
   function goBack() {
     setError(null);
+    if (step === STEPS.length - 1 && consentAnswered) {
+      setConsentAnswered(false);
+      return;
+    }
     setStep((s) => Math.max(s - 1, 0));
   }
 
@@ -185,6 +206,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
   }
 
   function onInvalid(formErrors: typeof errors) {
+    setConsentAnswered(false);
     const firstIncomplete = findFirstIncompleteStep(formErrors);
     if (firstIncomplete >= 0) {
       setStep(firstIncomplete);
@@ -200,17 +222,20 @@ export function QuestionnaireForm({ token }: { token: string }) {
     setError(null);
     startTransition(async () => {
       const result = await submitQuestionnaireAction(token, data);
-      if (!result.success) {
+      if (!result.success || !result.data) {
         setError(result.error || "Não foi possível enviar");
         return;
       }
-      router.push(
-        `/conhecendo/obrigado?nome=${encodeURIComponent(result.data?.personName || "")}`,
+      onCompleted(
+        result.data.personId,
+        result.data.personName || data.whoYouAre.preferredName,
       );
     });
   }
 
   const progress = ((step + 1) / STEPS.length) * 100;
+  const isLastStep = step === STEPS.length - 1;
+  const canSubmit = isLastStep && consentAnswered && consentValue === "sim";
 
   return (
     <form
@@ -689,32 +714,56 @@ export function QuestionnaireForm({ token }: { token: string }) {
           )}
 
           {step === 9 && (
-            <div className="space-y-4">
-              <p className="text-sm leading-relaxed text-muted">
-                Você concorda que essas informações sejam utilizadas
-                exclusivamente pela Gwen para tornar futuras conversas mais
-                naturais?
-              </p>
-              <Controller
-                control={control}
-                name="consent"
-                render={({ field }) => (
-                  <div className="grid grid-cols-2 gap-2">
-                    <ChoiceCard
-                      selected={field.value === "sim"}
-                      onClick={() => field.onChange("sim")}
-                    >
-                      Sim
-                    </ChoiceCard>
-                    <ChoiceCard
-                      selected={field.value === "nao"}
-                      onClick={() => field.onChange("nao")}
-                    >
-                      Não
-                    </ChoiceCard>
-                  </div>
-                )}
-              />
+            <div className="space-y-5">
+              {!consentAnswered ? (
+                <>
+                  <p className="text-sm leading-relaxed text-muted">
+                    Você concorda que essas informações sejam utilizadas
+                    exclusivamente pela Gwen para tornar futuras conversas mais
+                    naturais?
+                  </p>
+                  <Controller
+                    control={control}
+                    name="consent"
+                    render={({ field }) => (
+                      <div className="grid grid-cols-2 gap-2">
+                        <ChoiceCard
+                          selected={field.value === "sim"}
+                          onClick={() => {
+                            field.onChange("sim");
+                            setConsentAnswered(true);
+                          }}
+                        >
+                          Sim
+                        </ChoiceCard>
+                        <ChoiceCard
+                          selected={field.value === "nao"}
+                          onClick={() => {
+                            field.onChange("nao");
+                            setConsentAnswered(true);
+                          }}
+                        >
+                          Não
+                        </ChoiceCard>
+                      </div>
+                    )}
+                  />
+                </>
+              ) : (
+                <>
+                  <FormThanksCard />
+                  {consentValue === "nao" ? (
+                    <p className="rounded-2xl border border-white/[0.06] bg-card/50 px-4 py-3 text-sm text-muted">
+                      Sem o seu consentimento, a Gwen não guarda essas histórias.
+                      Tudo bem — obrigado por considerar.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted">
+                      Quando estiver pronto, envie suas respostas para a Gwen.
+                    </p>
+                  )}
+                </>
+              )}
             </div>
           )}
         </motion.div>
@@ -727,7 +776,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
       ) : null}
 
       <div className="flex gap-3 pt-2">
-        {step > 0 ? (
+        {step > 0 || consentAnswered ? (
           <Button
             type="button"
             variant="secondary"
@@ -737,7 +786,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
             Voltar
           </Button>
         ) : null}
-        {step < STEPS.length - 1 ? (
+        {!isLastStep ? (
           <Button
             type="button"
             onClick={goNext}
@@ -745,7 +794,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
           >
             Continuar
           </Button>
-        ) : (
+        ) : canSubmit ? (
           <Button
             type="submit"
             loading={pending}
@@ -753,7 +802,7 @@ export function QuestionnaireForm({ token }: { token: string }) {
           >
             Enviar para a Gwen
           </Button>
-        )}
+        ) : null}
       </div>
     </form>
   );
