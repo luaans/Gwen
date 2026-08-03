@@ -44,3 +44,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# android (TWA) — build artifacts e segredos de assinatura
+android/.gradle
+android/local.properties
+android/app/build
+android/build
+android/.idea
+android/*.iml
+android/app/*.iml
+android/**/*.keystore
+android/**/*.jks
+android/captures

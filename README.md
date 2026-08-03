@@ -32,9 +32,13 @@ npm run dev
 - Perfil completo com todas as respostas
 - Memórias por pessoa
 - Resumo vivo (gerado do questionário)
-- Conversas com a Gwen (contextual; com OpenAI se houver chave)
+- Conversas com a Gwen (contextual; com OpenAI se houver chave; voz por reconhecimento e TTS)
+- Check-ins de humor (`/humor`) + detecção de humor nas conversas
+- Lembranças vivas (`/lembrancas`), sincronizadas a partir das lacunas do formulário
 - Diário de acontecimentos
 - Configurações (link de convite, nome)
+- PWA instalável (manifest + service worker)
+- App Android via TWA (ver `android/README.md`)
 
 ## Rotas
 
@@ -51,6 +55,8 @@ npm run dev
 | `/pessoas/[id]/conversa` | Chat com a Gwen |
 | `/pessoas/[id]/editar` | Editar + foto |
 | `/conhecendo/[token]` | Formulário público |
+| `/humor` | Check-ins de humor |
+| `/lembrancas` | Lembranças abertas |
 
 ## Filosofia
 
