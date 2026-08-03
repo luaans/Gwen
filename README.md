@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gwen
 
-## Getting Started
+Companion digital pessoal — Fase 1: fundação.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Copie `.env.local.example` para `.env.local`
+2. Preencha:
+
+```
+MONGODB_URI=sua_connection_string_do_atlas
+DATABASE_NAME=gwen
+NEXTAUTH_SECRET=uma-string-aleatoria-longa
+NEXTAUTH_URL=http://localhost:3000
+OWNER_NAME=Luan Silva
+OWNER_EMAIL=seu@email.com
+OWNER_PASSWORD=sua-senha
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Instale e rode:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Na primeira execução, a Gwen cria automaticamente:
 
-## Learn More
+- o usuário proprietário (Luan Silva)
+- as coleções no MongoDB Atlas
+- o token único do formulário
+- a primeira entrada no Journal
 
-To learn more about Next.js, take a look at the following resources:
+## Rotas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Rota | Quem |
+|------|------|
+| `/` | Landing |
+| `/entrar` | Login do Luan |
+| `/dashboard` | Pessoas importantes |
+| `/pessoas/nova` | Apresentar alguém |
+| `/pessoas/[id]` | Perfil |
+| `/pessoas/[id]/editar` | Editar + foto |
+| `/conhecendo/[token]` | Formulário público (link único) |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Filosofia
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A Gwen não trata pessoas como registros. Cada pessoa é uma história em construção.
