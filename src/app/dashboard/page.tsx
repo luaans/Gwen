@@ -32,11 +32,18 @@ export default async function DashboardPage({
                 Cada nome aqui é uma história em construção.
               </p>
             </div>
-            <Link href="/pessoas/nova">
-              <Button className="w-full sm:w-auto">
-                Apresentar alguém
-              </Button>
-            </Link>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <Link href="/conversas">
+                <Button variant="secondary" className="w-full sm:w-auto">
+                  Conversas
+                </Button>
+              </Link>
+              <Link href="/pessoas/nova">
+                <Button className="w-full sm:w-auto">
+                  Apresentar alguém
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">

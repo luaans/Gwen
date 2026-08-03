@@ -5,10 +5,16 @@ import { PageTransition } from "@/components/layout/PageTransition";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { QuestionnaireReview } from "@/components/people/QuestionnaireReview";
+import { MemoriesSection } from "@/components/people/MemoriesSection";
+import { GenerateSummaryButton } from "@/components/people/GenerateSummaryButton";
 import { getPersonById } from "@/services/person.service";
 import { getQuestionnaireByPersonId } from "@/services/questionnaire.service";
+import { listMemoriesByPerson } from "@/services/memory.service";
+import { ensurePersonSummary } from "@/services/summary.service";
 import { RELATION_LABELS } from "@/types";
 import { formatDate, formatRelative } from "@/utils/normalize";
+
+export const dynamic = "force-dynamic";
 
 export default async function PersonProfilePage({
   params,
@@ -19,7 +25,10 @@ export default async function PersonProfilePage({
   const person = await getPersonById(id);
   if (!person) notFound();
 
+  await ensurePersonSummary(id);
+  const refreshed = await getPersonById(id);
   const questionnaire = await getQuestionnaireByPersonId(id);
+  const memories = await listMemoriesByPerson(id);
 
   return (
     <AppShell title={person.fullName}>
@@ -44,8 +53,13 @@ export default async function PersonProfilePage({
                   : RELATION_LABELS[person.relationType]}
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
+                <Link href={`/pessoas/${person.id}/conversa`}>
+                  <Button size="sm">Conversar com a Gwen</Button>
+                </Link>
                 <Link href={`/pessoas/${person.id}/editar`}>
-                  <Button size="sm">Editar</Button>
+                  <Button size="sm" variant="secondary">
+                    Editar
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -67,9 +81,13 @@ export default async function PersonProfilePage({
           </div>
 
           <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-            <h2 className="font-medium">Resumo</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-medium">Resumo</h2>
+              <GenerateSummaryButton personId={person.id} />
+            </div>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              {person.summary ||
+              {refreshed?.summary ||
+                person.summary ||
                 "Ainda sem resumo. Com o tempo, a Gwen vai tecer memórias aqui."}
             </p>
           </section>
@@ -82,6 +100,8 @@ export default async function PersonProfilePage({
               </p>
             </section>
           ) : null}
+
+          <MemoriesSection personId={person.id} memories={memories} />
 
           <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
             <h2 className="font-medium">Primeiro encontro com a Gwen</h2>

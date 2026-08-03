@@ -1,6 +1,6 @@
 # Gwen
 
-Companion digital pessoal — Fase 1: fundação.
+Companion digital pessoal.
 
 ## Setup
 
@@ -15,6 +15,8 @@ NEXTAUTH_URL=http://localhost:3000
 OWNER_NAME=Luan Silva
 OWNER_EMAIL=seu@email.com
 OWNER_PASSWORD=sua-senha
+OPENAI_API_KEY=                    # opcional — conversas com IA
+OPENAI_MODEL=gpt-4o-mini           # opcional
 ```
 
 3. Instale e rode:
@@ -24,12 +26,15 @@ npm install
 npm run dev
 ```
 
-Na primeira execução, a Gwen cria automaticamente:
+## O que já existe
 
-- o usuário proprietário (Luan Silva)
-- as coleções no MongoDB Atlas
-- o token único do formulário
-- a primeira entrada no Journal
+- Pessoas importantes + formulário público (primeiro encontro)
+- Perfil completo com todas as respostas
+- Memórias por pessoa
+- Resumo vivo (gerado do questionário)
+- Conversas com a Gwen (contextual; com OpenAI se houver chave)
+- Diário de acontecimentos
+- Configurações (link de convite, nome)
 
 ## Rotas
 
@@ -38,10 +43,14 @@ Na primeira execução, a Gwen cria automaticamente:
 | `/` | Landing |
 | `/entrar` | Login do Luan |
 | `/dashboard` | Pessoas importantes |
+| `/conversas` | Conversas recentes |
+| `/diario` | Journal |
+| `/configuracoes` | Ajustes |
 | `/pessoas/nova` | Apresentar alguém |
 | `/pessoas/[id]` | Perfil |
+| `/pessoas/[id]/conversa` | Chat com a Gwen |
 | `/pessoas/[id]/editar` | Editar + foto |
-| `/conhecendo/[token]` | Formulário público (link único) |
+| `/conhecendo/[token]` | Formulário público |
 
 ## Filosofia
 

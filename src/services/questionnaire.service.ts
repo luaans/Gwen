@@ -110,6 +110,13 @@ export async function submitQuestionnaire(
 
   await Person.findByIdAndUpdate(person.id, { updatedAt: new Date() });
 
+  try {
+    const { generatePersonSummary } = await import("./summary.service");
+    await generatePersonSummary(person.id, "questionnaire");
+  } catch (error) {
+    console.error("[gwen/summary-after-questionnaire]", error);
+  }
+
   return {
     questionnaireId: questionnaire._id.toString(),
     personId: person.id,

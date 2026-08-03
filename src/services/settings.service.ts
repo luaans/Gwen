@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { connectDB } from "@/lib/mongodb";
 import { ensureSeed } from "@/lib/seed";
 import { Settings } from "@/models";
@@ -20,4 +21,27 @@ export async function getInviteToken(): Promise<string> {
 export async function validateInviteToken(token: string): Promise<boolean> {
   const settings = await getSettings();
   return settings.formInviteToken === token;
+}
+
+export async function rotateInviteToken(): Promise<string> {
+  const settings = await getSettings();
+  settings.formInviteToken = randomUUID();
+  await settings.save();
+  return settings.formInviteToken;
+}
+
+export async function updateOwnerDisplayName(name: string) {
+  const settings = await getSettings();
+  settings.ownerDisplayName = name.trim();
+  await settings.save();
+  return settings.ownerDisplayName;
+}
+
+export async function getSettingsDTO() {
+  const settings = await getSettings();
+  return {
+    formInviteToken: settings.formInviteToken,
+    ownerDisplayName: settings.ownerDisplayName,
+    updatedAt: settings.updatedAt.toISOString(),
+  };
 }
